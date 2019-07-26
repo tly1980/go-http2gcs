@@ -2,8 +2,7 @@ compile:
 	go build
 
 test:
-	go test ./tests
-
+	go test -v ./tests
 
 deps:
 	dep ensure

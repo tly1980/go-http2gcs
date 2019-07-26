@@ -6,7 +6,7 @@ import (
   "os"
 )
 
-func Producer(fPath string, task chan string) {
+func FileProducer(fPath string, task chan string) {
   file, err := os.Open(fPath)
   if err != nil {
       log.Fatal(err)

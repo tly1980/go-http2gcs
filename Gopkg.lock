@@ -18,6 +18,14 @@
   version = "v0.43.0"
 
 [[projects]]
+  digest = "1:f1b14e9f7661ae2cd8b30fc0cde69b1f7c30db85fc43f346b315ef0e434ddbff"
+  name = "github.com/bradleyjkemp/cupaloy"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "4ebc4e863ab6bedcc009ccfb5f209939090ceadd"
+  version = "v2.4.0"
+
+[[projects]]
   digest = "1:c1100fc71e23b6a32b2c68a5202a848fd13811d5a10b12edb8019c3667d1cd9a"
   name = "github.com/cenkalti/backoff"
   packages = ["."]
@@ -95,14 +103,6 @@
   pruneopts = "UT"
   revision = "839c75faf7f98a33d445d181f3018b5c3409a45e"
   version = "v1.4.2"
-
-[[projects]]
-  digest = "1:972c2427413d41a1e06ca4897e8528e5a1622894050e2f527b38ddf0f343f759"
-  name = "github.com/stretchr/testify"
-  packages = ["assert"]
-  pruneopts = "UT"
-  revision = "ffdc059bfe9ce6a4e144ba849dbedead332c6053"
-  version = "v1.3.0"
 
 [[projects]]
   digest = "1:74055050ea547bb04600be79cc501965cb3de8988018262f2ca430f0a0b48ec3"
@@ -292,10 +292,10 @@
   analyzer-version = 1
   input-imports = [
     "cloud.google.com/go/storage",
+    "github.com/bradleyjkemp/cupaloy",
     "github.com/cenkalti/backoff",
     "github.com/patrickmn/go-cache",
     "github.com/sirupsen/logrus",
-    "github.com/stretchr/testify/assert",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

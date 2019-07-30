@@ -65,6 +65,7 @@ func (self * GCSDumper) GetWriter(task *task.Task) (*storage.Writer, error) {
 }
 
 func Do(dumper *GCSDumper, theTask *task.Task) (*task.FeedBack) {
+  LOG.Error("Do: task=", theTask)
   var resp *http.Response
   var writer *storage.Writer
   feedBack := &task.FeedBack {theTask, 0, 0, nil}
@@ -79,7 +80,7 @@ func Do(dumper *GCSDumper, theTask *task.Task) (*task.FeedBack) {
     return err0
   }, expBackoff)
   if err != nil {
-    LOG.Error("Stage1 - Got err: %v, %v", theTask, err)
+    LOG.Error("Stage1: task=", theTask, "err=", err)
     feedBack.Err = err
     return feedBack
   }
@@ -89,10 +90,10 @@ func Do(dumper *GCSDumper, theTask *task.Task) (*task.FeedBack) {
   err = backoff.Retry(func() error {
     var err0 error
     resp, err0 = http.Get(theTask.Src)
-    LOG.Error("Stage2 - Got err: %v, %v", theTask, err)
     return err0
   }, expBackoff)
   if err != nil {
+    LOG.Error("Stage1: task=", theTask, "err=", err)
     feedBack.Err = err
     return feedBack
   }

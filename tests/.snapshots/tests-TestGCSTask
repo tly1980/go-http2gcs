@@ -1,0 +1,11 @@
+(*task.FeedBack)({
+  Task: (*task.Task)({
+    Src: (string) (len=132) "https://gist.githubusercontent.com/tly1980/f1f1f9b99be233d15b955dd40320913a/raw/288943ac222307988c6e05a30e0a1820dcb63d4b/gcs_ut1.txt",
+    DestScheme: (string) (len=2) "gs",
+    DestBkt: (string) (len=6) "tt-dev",
+    DestKey: (string) (len=26) "ut/http2gcs/gcs_ut1.txt.gz"
+  }),
+  Hash: (uint32) 2927324289,
+  HashZ: (uint32) 888110932,
+  Err: (error) <nil>
+})

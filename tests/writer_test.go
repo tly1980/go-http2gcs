@@ -38,7 +38,7 @@ func TestGZipCopy(t *testing.T) {
 		t.Errorf("error: %v", err)
 	}
 
-	w, err := os.Create("all.jl.gz")
+	w, err := os.Create(".test-tmp/all.jl.gz")
 	if (err != nil) {
 		t.Errorf("error: %v", err)
 	}

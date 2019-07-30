@@ -1,44 +1,136 @@
+package consumer
+
 import (
   "bufio"
-  "log"
-  "os"
-  "math"
-  "time"
   "net/http"
-  "hash/crc32"
+  "time"
+  "context"
   // third parties
+
   "cloud.google.com/go/storage"
+  "github.com/cenkalti/backoff"
+  cache "github.com/patrickmn/go-cache"
+  log "github.com/sirupsen/logrus"
+
+  hio "http2gcs/io"
+  "http2gcs/task"
 )
 
+var LOG = log.New()
+
+const EXPIRATION = 10 * time.Minute
+
+type Dumper interface {
+  GetWriter(task *task.Task) (*storage.Writer, error)
+}
 
 
+type GCSDumper struct {
+  bktCache *cache.Cache
+}
 
-func runOne(maxRetry int, url string, destBase string, client *storage.Client) {
-  sleepInterval := 200
+func NewGCSDumper() *GCSDumper {
+  bktCache := cache.New(EXPIRATION, 2 * EXPIRATION)
+  return &GCSDumper{ bktCache }
+}
 
-  for i:=1; i < maxRetry; i++ {
-    resp, err := http.Get(url)
+func (self *GCSDumper) GetBucket(bktName string) (*storage.BucketHandle, error) {
 
-    if err == nil {
-      tempFile, err1 := ioutil.TempFile("http2gcs", "tfile")
-      crc32qTable := crc32.MakeTable(crc32.Constants.Castagnoli)
-      crc32c.Update
-      resp.Body.Close()
-      break
-    } else {
-      sleepMills := math.Pow(2, i) * sleepInterval
-      continue
+  item, found := self.bktCache.Get(bktName)
+  var bkt *storage.BucketHandle
+  if found {
+    bkt = item.(*storage.BucketHandle)
+    return bkt, nil
+  }
+
+  ctx := context.Background()
+  client, err := storage.NewClient(ctx)
+  if err != nil {
+    LOG.Error("Failed to create GCS storage.Client: %v", err)
+    return nil, err
+  }
+  bkt = client.Bucket(bktName)
+  self.bktCache.Add(bktName, bkt, EXPIRATION)
+  return bkt, nil
+}
+
+func (self * GCSDumper) GetWriter(task *task.Task) (*storage.Writer, error) {
+  bkt, err := self.GetBucket(task.DestBkt)
+  if (err != nil) {
+    return nil, err
+  }
+  ctx := context.Background()
+  obj := bkt.Object(task.DestKey)
+  return obj.NewWriter(ctx), nil
+}
+
+func Do(dumper *GCSDumper, theTask *task.Task) (*task.FeedBack) {
+  var resp *http.Response
+  var writer *storage.Writer
+  feedBack := &task.FeedBack {theTask, 0, 0, nil}
+
+  expBackoff := backoff.NewExponentialBackOff()
+  expBackoff.MaxElapsedTime = time.Duration(time.Minute *5 )
+
+  expBackoff.Reset()
+  err := backoff.Retry(func () error {
+    var err0 error
+    writer, err0 = dumper.GetWriter(theTask)
+    return err0
+  }, expBackoff)
+  if err != nil {
+    LOG.Error("Stage1 - Got err: %v, %v", theTask, err)
+    feedBack.Err = err
+    return feedBack
+  }
+  defer writer.Close()
+
+  expBackoff.Reset()
+  err = backoff.Retry(func() error {
+    var err0 error
+    resp, err0 = http.Get(theTask.Src)
+    LOG.Error("Stage2 - Got err: %v, %v", theTask, err)
+    return err0
+  }, expBackoff)
+  if err != nil {
+    feedBack.Err = err
+    return feedBack
+  }
+  defer resp.Body.Close()
+
+  expBackoff.Reset()
+  err = backoff.Retry(func() error {
+    bWriter := bufio.NewWriter(writer)
+    bReader := bufio.NewReader(resp.Body)
+    hash, hashZ, err0, err1 := hio.GZipCopy(bWriter, bReader)
+    feedBack.Hash = hash
+    feedBack.HashZ = hashZ
+    bWriter.Flush()
+    if (err0 != nil) {
+      return err0
     }
+    if (err1 != nil) {
+      return err1
+    }
+    return nil
+  }, expBackoff)
+  if err != nil {
+    feedBack.Err = err
+    LOG.Error("Stage3 - Got err: %v, %v", theTask, err)
+  }
 
+  return feedBack
+}
+
+
+func StartProc(workerCount int, tasks chan *task.Task, feedBacks chan *task.FeedBack) {
+  for i := 0; i < workerCount; i++ {
+    go func() {
+      dump := NewGCSDumper()
+      for t := range tasks {
+        feedBacks <- Do(dump, t)
+      }
+    } ()
   }
 }
 
-func run(task chan string, feedBack chan string) {
-
-}
-
-func BatchRun(workerNum int, task chan string, feedBack chan string) {
- for url := range chan {
-
-  }
-}

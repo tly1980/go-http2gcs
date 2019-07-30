@@ -2,8 +2,10 @@ package tests
 
 import (
 	"testing"
-	//"io"
 	"os"
+	// "sync"
+	// "io"
+	// "compress/gzip"
 	hio "http2gcs/io"
 )
 
@@ -31,12 +33,12 @@ func TestGZipCopySimple(t *testing.T) {
 }
 
 func TestGZipCopy(t *testing.T) {
-	r, err := os.Open("fixtures/f1.txt")
+	r, err := os.Open("fixtures/all.jl")
 	if (err != nil) {
 		t.Errorf("error: %v", err)
 	}
 
-	w, err := os.Create("f1_2.gz")
+	w, err := os.Create("all.jl.gz")
 	if (err != nil) {
 		t.Errorf("error: %v", err)
 	}

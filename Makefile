@@ -2,7 +2,11 @@ compile:
 	go build
 
 test:
-	go test -v ./tests
+	@go test ./tests
+
+test-update-snapshot:
+	@UPDATE_SNAPSHOTS=true go test ./tests
+
 
 deps:
 	dep ensure

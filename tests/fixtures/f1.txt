@@ -1,3 +1,4 @@
-http://a.com/
-http://bb.com/
-http://ccc.com/
+http://a.com/bb/ccc/t1.txt
+http://a.com/bb/ccc/t2.txt
+http://a.com/bb/ccc/t3.txt
+http://a.com/bb/ccc/t4.txt

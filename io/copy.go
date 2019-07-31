@@ -6,7 +6,6 @@ import (
   // "path/filepath"
   //"log"
   log "github.com/sirupsen/logrus"
-  "bytes"
   "hash/crc32"
   "sync"
   "compress/gzip"
@@ -17,12 +16,22 @@ var LOG = log.New()
 
 var CRC32_TBL = crc32.MakeTable(crc32.Castagnoli)
 
+func CopySimple(writer io.Writer, reader io.Reader) (uint32, error) {
+  hash := crc32.New(CRC32_TBL)
+  mw := io.MultiWriter(hash, writer)
+  LOG.Info("start...")
+  n, err := io.Copy(mw, reader)
+  LOG.Info("bytes copied", n)
+  //wg.Wait()
+  return hash.Sum32(), err
+}
+
 func GZipCopySimple(writer io.Writer, reader io.Reader) (uint32, error) {
   hash := crc32.New(CRC32_TBL)
-  buf := bytes.Buffer {}
+  // buf := bytes.Buffer {}
   // multi writer no need to close
   gzw := gzip.NewWriter(writer)
-  mw := io.MultiWriter(hash, gzw, &buf)
+  mw := io.MultiWriter(hash, gzw)
 
   defer gzw.Close()
 
@@ -38,7 +47,7 @@ func GZipCopy(writer io.Writer, reader io.Reader) (uint32, uint32, error, error)
   //       \-- gzip writer --> multi(gz-hash, writer)
 
   var err1 error = nil
-  buf := bytes.Buffer {}
+  // buf := bytes.Buffer {}
   wg := &sync.WaitGroup {}
   hash := crc32.New(CRC32_TBL)
   hashZ := crc32.New(CRC32_TBL)
@@ -47,7 +56,7 @@ func GZipCopy(writer io.Writer, reader io.Reader) (uint32, uint32, error, error)
   gzw := gzip.NewWriter(pw)
 
   mw := io.MultiWriter(hash, gzw)
-  mwFinal := io.MultiWriter(hashZ, writer, &buf)
+  mwFinal := io.MultiWriter(hashZ, writer)
 
   LOG.Info("start...")
   wg.Add(1)

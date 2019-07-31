@@ -9,13 +9,40 @@ import (
 	hio "http2gcs/io"
 )
 
-func TestGZipCopySimple(t *testing.T) {
-	r, err := os.Open("fixtures/f1.txt")
+var SRC_SMALL = "fixtures/f1.txt"
+var SRC_BIG = "fixtures/all.jl"
+
+func TestCopy(t *testing.T) {
+	r, err := os.Open(SRC_SMALL)
 	if (err != nil) {
 		t.Errorf("error: %v", err)
 	}
 
-	w, err := os.Create(".test-tmp/f1.gz")
+	w, err := os.Create(".test-tmp/TestCopy-f1.txt")
+	if (err != nil) {
+		t.Errorf("error: %v", err)
+	}
+
+	defer w.Close()
+	defer r.Close()
+
+	hash, err := hio.Copy(w, r)
+
+	t.Logf("crc32c: %v", hash)
+	if (err != nil) {
+		t.Logf("error: %v", err)
+	}
+
+}
+
+
+func TestGZipCopySimple(t *testing.T) {
+	r, err := os.Open(SRC_SMALL)
+	if (err != nil) {
+		t.Errorf("error: %v", err)
+	}
+
+	w, err := os.Create(".test-tmp/TestGZipCopySimple-f1.gz")
 	if (err != nil) {
 		t.Errorf("error: %v", err)
 	}
@@ -33,12 +60,12 @@ func TestGZipCopySimple(t *testing.T) {
 }
 
 func TestGZipCopy(t *testing.T) {
-	r, err := os.Open("fixtures/all.jl")
+	r, err := os.Open(SRC_BIG)
 	if (err != nil) {
 		t.Errorf("error: %v", err)
 	}
 
-	w, err := os.Create(".test-tmp/all.jl.gz")
+	w, err := os.Create(".test-tmp/TestGZipCopy-all.jl.gz")
 	if (err != nil) {
 		t.Errorf("error: %v", err)
 	}

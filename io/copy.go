@@ -16,7 +16,7 @@ var LOG = log.New()
 
 var CRC32_TBL = crc32.MakeTable(crc32.Castagnoli)
 
-func CopySimple(writer io.Writer, reader io.Reader) (uint32, error) {
+func Copy(writer io.Writer, reader io.Reader) (uint32, error) {
   hash := crc32.New(CRC32_TBL)
   mw := io.MultiWriter(hash, writer)
   LOG.Info("start...")

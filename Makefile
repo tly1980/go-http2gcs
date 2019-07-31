@@ -2,10 +2,10 @@ compile:
 	go build
 
 test:
-	@go test ./tests
+	@go test -v  ./tests
 
 test-update-snapshot:
-	@UPDATE_SNAPSHOTS=true go test ./tests
+	@UPDATE_SNAPSHOTS=true go test -v ./tests
 
 
 deps:

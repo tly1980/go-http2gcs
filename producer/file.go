@@ -3,9 +3,9 @@ package producer
 import (
   "bufio"
   "net/url"
-  "os"
   "path"
   "strings"
+  "io"
 
   log "github.com/sirupsen/logrus"
   "http2gcs/task"
@@ -13,7 +13,40 @@ import (
 
 var LOG = log.New()
 
-func FileProducer(fPath string, baseUri string, tasks chan *task.Task) error {
+func FileListToDirProducer(reader io.Reader, baseUri string, tasks chan *task.Task) error {
+  uParse, err := url.Parse(baseUri)
+
+  if err != nil {
+    return err
+  }
+
+  destScheme := uParse.Scheme
+  destBkt := uParse.Host
+  destBase := strings.Trim(uParse.Path, "/")
+
+  scanner := bufio.NewScanner(reader)
+  for scanner.Scan() {
+    src := scanner.Text()
+    fName := path.Base(src)
+    t := &task.Task{
+        src,
+        destScheme,
+        destBkt,
+        path.Join(destBase, fName),
+    }
+    tasks <- t
+  }
+
+  if err = scanner.Err(); err != nil {
+    log.Fatal(err)
+    return err
+  }
+
+  return nil
+}
+
+/*
+func CSVFileToFileProducer(fPath string, tasks chan *task.Task) error {
   uParse, err := url.Parse(baseUri)
 
   if err != nil {
@@ -50,3 +83,4 @@ func FileProducer(fPath string, baseUri string, tasks chan *task.Task) error {
 
   return nil
 }
+*/

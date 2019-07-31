@@ -3,9 +3,9 @@ package tests
 import (
 	"testing"
 	"os"
-	// "sync"
-	// "io"
-	// "compress/gzip"
+
+	"github.com/bradleyjkemp/cupaloy"
+
 	hio "http2gcs/io"
 )
 
@@ -27,6 +27,7 @@ func TestCopy(t *testing.T) {
 	defer r.Close()
 
 	hash, err := hio.Copy(w, r)
+	cupaloy.SnapshotT(t, hash)
 
 	t.Logf("crc32c: %v", hash)
 	if (err != nil) {
@@ -51,6 +52,7 @@ func TestGZipCopySimple(t *testing.T) {
 	defer r.Close()
 
 	hash, err := hio.GZipCopySimple(w, r)
+	cupaloy.SnapshotT(t, hash)
 
 	t.Logf("crc32c: %v", hash)
 	if (err != nil) {
@@ -74,6 +76,7 @@ func TestGZipCopy(t *testing.T) {
 	defer r.Close()
 
 	hash, hashZ, err, err1 := hio.GZipCopy(w, r)
+	cupaloy.SnapshotT(t, []uint32 {hash, hashZ})
 
 	t.Logf("hash: %v, hashZ: %v", hash, hashZ)
 	t.Logf("err: %v, err1: %v", err, err1)

@@ -1,0 +1,20 @@
+([]*task.Task) (len=3) {
+  (*task.Task)({
+    Src: (string) (len=18) "http://a/bb/ccc/f1",
+    DestScheme: (string) (len=2) "gs",
+    DestBkt: (string) (len=3) "bkt",
+    DestKey: (string) (len=11) "a/bb/ccc/f1"
+  }),
+  (*task.Task)({
+    Src: (string) (len=18) "http://a/bb/ccc/f2",
+    DestScheme: (string) (len=2) "gs",
+    DestBkt: (string) (len=3) "bkt",
+    DestKey: (string) (len=11) "a/bb/ccc/f2"
+  }),
+  (*task.Task)({
+    Src: (string) (len=18) "http://a/bb/ccc/f3",
+    DestScheme: (string) (len=2) "gs",
+    DestBkt: (string) (len=3) "bkt",
+    DestKey: (string) (len=16) "a/bb/ccc/dddd/f3"
+  })
+}

@@ -63,14 +63,15 @@ func GZipCopy(writer io.Writer, reader io.Reader) (uint32, uint32, error, error)
 
   // start the thread first
   go func () {
-    var n int64
-    n, err1 = io.Copy(mwFinal, pr)
-    LOG.Info("n: ", n)
+    //n, err1 = io.Copy(mwFinal, pr)
+    //LOG.Info("n: ", n)
+    _, err1 = io.Copy(mwFinal, pr)
     wg.Done()
   } ();
 
-  n0, err := io.Copy(mw, reader)
-  LOG.Info("n0: ", n0)
+  _, err := io.Copy(mw, reader)
+  //n0, err := io.Copy(mw, reader)
+  //LOG.Info("n0: ", n0)
   gzw.Close()
   pw.Close()
 

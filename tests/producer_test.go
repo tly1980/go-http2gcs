@@ -13,13 +13,17 @@ import (
 )
 
 func TestFileListToDirProducer(t *testing.T) {
-	ch := make(chan *task.Task)
+	ch := make(chan *task.Task, 20)
 	file, _ := os.Open("fixtures/f1.txt")
 	defer file.Close()
 
-	go producer.FileListToDirProducer(file, "gs://ut/a/b/c", ch)
-	l1, l2, l3, l4 := <-ch, <-ch, <-ch, <-ch
-	allTasks := []*task.Task {l1, l2, l3, l4}
+	producer.FileListToDirProducer(file, "gs://ut/a/b/c", ch)
+	var allTasks []*task.Task
+	close(ch)
+	for theTask := range ch {
+		allTasks = append(allTasks, theTask)
+	}
+
 	cupaloy.SnapshotT(t, allTasks)
 }
 
@@ -37,12 +41,17 @@ func TestFileListToDirProducer(t *testing.T) {
 */
 
 func TestCSVFileToFileProducer(t *testing.T) {
-	ch := make(chan *task.Task)
+	ch := make(chan *task.Task, 20)
 	file, _ := os.Open("fixtures/task1.csv")
 	defer file.Close()
 
-	go producer.CSVFileToFileProducer(file, ch)
-	l1, l2, l3 := <-ch, <-ch, <-ch
-	allTasks := []*task.Task {l1, l2, l3}
+	producer.CSVFileToFileProducer(file, ch)
+	var allTasks []*task.Task
+	close(ch)
+	for theTask := range ch {
+		allTasks = append(allTasks, theTask)
+	}
+	//l1, l2, l3 := <-ch, <-ch, <-ch
+	// := {l1, l2, l3}
 	cupaloy.SnapshotT(t, allTasks)
 }

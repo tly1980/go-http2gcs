@@ -13,6 +13,7 @@ import (
 )
 
 func TestFileListToDirProducer(t *testing.T) {
+	// add some buffer to the channel, to make it async
 	ch := make(chan *task.Task, 20)
 	file, _ := os.Open("fixtures/f1.txt")
 	defer file.Close()
@@ -41,6 +42,7 @@ func TestFileListToDirProducer(t *testing.T) {
 */
 
 func TestCSVFileToFileProducer(t *testing.T) {
+	// add some buffer to the channel, to make it async
 	ch := make(chan *task.Task, 20)
 	file, _ := os.Open("fixtures/task1.csv")
 	defer file.Close()
